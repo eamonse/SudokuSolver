@@ -1,0 +1,74 @@
+{
+  "tests": [
+    {
+      "name": "4x4 Easy",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_easy_4x4",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "4x4 Hard",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_hard_4x4",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "9x9 Easy",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_easy_9x9",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "9x9 Medium",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_medium_9x9",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "9x9 Hard",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_hard_9x9",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "9x9 Expert",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_expert_9x9",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": 1
+    },
+    {
+      "name": "16x16",
+      "setup": "",
+      "run": "python -m unittest tests.solver_tests.SudokuSolverTests.test_16x16",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 5,
+      "points": 1
+    }
+  ]
+}
