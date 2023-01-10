@@ -46,9 +46,9 @@ class SudokuSolver:
     # with all cells filled in (also a 2D array).  Empty cell values are None.
     def solve(self, grid:List[List[str]]) -> List[List[str]]:
         self.nones = self.nones_list(grid)
-
-        #return the thing
         answer = self.recursion_solve(grid)
+        #return the thing
+        
         return answer
 
 
@@ -134,8 +134,8 @@ class SudokuSolver:
             #if there are no Nones within the grid
             return grid
         else:
-            #self.nones.sort(reverse=True, )
             coords = self.nones.pop()
+            #coordinates (row,col) of None
             chunked_grid = self.chunk_grid(grid, ((coords[0]//self.chunk_length)*self.chunk_length), ((coords[1]//self.chunk_length)*self.chunk_length))
             group = self.grab_possible_group_letters(chunked_grid)
             row = self.grab_possible_row_letters(grid, coords[0])
@@ -144,37 +144,35 @@ class SudokuSolver:
             final = self.identify_letters(row, col, group)
             #here is the list of the possible letters that could potentially work
             for x in final:
-                
-                grid[coords[0]][coords[1]] = x
-                #just remove it from the lists directly with list.remove()
-                self.remove_val(group, x)
-                self.remove_val(row, x)
-                self.remove_val(col,x)
-                solved_grid = self.recursion_solve(grid)
-                if solved_grid != None:
-                    #if it reaches the base case and never has a None then it would have worked
-                    return solved_grid
-                grid[coords[0]][coords[1]] = None
-                self.add_val(group, x)
-                self.add_val(row, x)
-                self.add_val(col, x)
-                #update the list AGAIN but this time i need to re-add the x value back because it didnt work (use append)
-                #the biggest thing is that order doesnt matter its only the direct value that matters
+                #if self.valid_letter(grid, x, coords[0], coords[1]):
+                    grid[coords[0]][coords[1]] = x
+                    #just remove it from the lists directly with list.remove()
+                    group = self.remove_val(group, x)
+                    row = self.remove_val(row, x)
+                    col = self.remove_val(col,x)
+                    solved_grid = self.recursion_solve(grid)
+                    if solved_grid != None:
+                        #if it reaches the base case and never has a None then it would have worked
+                        return solved_grid
+                    grid[coords[0]][coords[1]] = None
+                    self.nones.insert(0, (coords))
+                    group.append(x)
+                    col.append(x)
+                    row.append(x)
+                    #update the list AGAIN but this time i need to re-add the x value back because it didnt work (use append)
+                    #the biggest thing is that order doesnt matter its only the direct value that matters
             return None
             
-    def remove_val(self, list:List[str], str:str) ->None:
-        for x in list:
-            if x == str:
-                list.remove(str)
-                break
+       
+            
+    def remove_val(self, list:List[str], str:str) ->List[str]:
+        if str in list:
+            list.remove(str)
+        return list
             
     
 
-    def add_val(self, list:List[str], str:str) ->None:
-        for x in list:
-            if x == str:
-                list.append(str)
-                break
+    
     
 
 
@@ -287,7 +285,7 @@ class SudokuSolver:
             col_set.add(x)
         for x in group_letters:
             group_set.add(x)
-        #throw into sets to use union to combine it all
+        #throw into sets to use intersection to combine it all
         final_set = row_set.intersection(col_set).intersection(group_set)
         for x in final_set:
             final_list.append(x)
