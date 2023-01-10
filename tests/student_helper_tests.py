@@ -62,17 +62,17 @@ class SudokuSolverStudentTests(TestCase):
                  ["D", None, "B", "A"]]
 
         solver = SudokuSolver(["A", "B", "C", "D"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 0)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["D"])
 
         solver = SudokuSolver(["A", "B", "C", "D"])
-        chunked_grid = solver.chunk_grid(puzzle, 2, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 2, 0)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["C"])
 
         solver = SudokuSolver(["A", "B", "C", "D"])
-        chunked_grid = solver.chunk_grid(puzzle, 2, 2)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 2, 2)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["C"])
 
@@ -89,36 +89,36 @@ class SudokuSolverStudentTests(TestCase):
                 ["G","S",None,None,None,"N","L",None,None]]
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 0)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["W", "L", "F", "T", "G", "P"])
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 3, 3)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 3, 3)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["L", "S", "T", "N", "G", "P"])
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 6, 6)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 6, 6)
         letters = solver.grab_possible_group_letters(chunked_grid)
         self.assertEqual(letters, ["W", "F", "S", "T", "R", "N"])
 
 
 
 
-    def test_chunk_grid(self):
+    def test_chunk_grid_matrix(self):
         puzzle = [["A", "B", "C", "D"],
                  ["C", None, "A", "B"],
                  ["B", "A", "D", None],
                  ["D", None, "B", "A"]]
         solver = SudokuSolver(["A", "B", "C", "D"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 1, 1)
         answer = [["A","B"],
                   ["C",None]]
         self.assertEqual(chunked_grid, answer)
         self.assertEqual(len(chunked_grid[0]), 2)
         solver = SudokuSolver(["A", "B", "C", "D"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 0)
         answer = [["B","A"],
                   ["D",None]]
 
@@ -135,7 +135,7 @@ class SudokuSolverStudentTests(TestCase):
                 ["G","S",None,None,None,"N","L",None,None]]
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 0)
         answer = [[None,None,"N"],
                   [None,"R","S"],
                   [None,None,None]]
@@ -143,7 +143,7 @@ class SudokuSolverStudentTests(TestCase):
         self.assertEqual(len(chunked_grid[0]), 3)
         
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 3)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 3)
         answer = [["F",None,None],
                   [None,"L",None],
                   [None,None,None]]
@@ -165,7 +165,7 @@ class SudokuSolverStudentTests(TestCase):
                 ["G","S",None,None,None,"N","L",None,None]]
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 0, 0)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 0, 0)
         col = solver.grab_possible_col_letters(puzzle, 0)
         group = solver.grab_possible_group_letters(chunked_grid)
         row = solver.grab_possible_row_letters(puzzle, 0)
@@ -180,7 +180,7 @@ class SudokuSolverStudentTests(TestCase):
         self.assertTrue(correct_letters)
 
         solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
-        chunked_grid = solver.chunk_grid(puzzle, 3, 3)
+        chunked_grid = solver.chunk_grid_matrix(puzzle, 3, 3)
         col = solver.grab_possible_col_letters(puzzle, 3)
         group = solver.grab_possible_group_letters(chunked_grid)
         row = solver.grab_possible_row_letters(puzzle, 3)
@@ -223,3 +223,13 @@ class SudokuSolverStudentTests(TestCase):
         self.assertTrue(is_valid)
         is_valid = solver.valid_letter(puzzle, "R", 6, 8)
         self.assertTrue(is_valid)
+
+
+    def test_nones_list(self):
+        puzzle = [["A", "B", "C", "D"],
+                 ["C", None, "A", "B"],
+                 ["B", "A", "D", None],
+                 ["D", None, "B", "A"]]
+        solver = SudokuSolver(["A", "B", "C", "D"])
+        coords = solver.nones_list(puzzle)
+        self.assertEqual(coords, [(1,1), (2,3), (3,1)])
