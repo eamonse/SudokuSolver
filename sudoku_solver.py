@@ -36,8 +36,17 @@ class SudokuSolver:
     def __init__(self, cell_options:List[str]) -> None:
         self.options = cell_options
         self.length = len(cell_options)
-        self.chunk_length = math.sqrt(self.length)
-        self.nones = []
+        self.chunk_length = int(math.sqrt(self.length))
+        #casting go crazy
+        self.nones = None
+
+        #set attempt
+        self.rows = None
+        self.cols = None
+        self.options_set = set(cell_options)
+        self.big_chunk = None
+
+        
 
     
     # solve
@@ -45,12 +54,8 @@ class SudokuSolver:
     # Takes a sudoku grid with some values filled in (2D array) and returns a solution grid 
     # with all cells filled in (also a 2D array).  Empty cell values are None.
     def solve(self, grid:List[List[str]]) -> List[List[str]]:
-        self.nones = self.nones_list(grid)
-        answer = self.recursion_solve(grid)
-        #return the thing
-        
-        return answer
-
+        self.initialize(grid)
+        return self.recursion_solver(grid)
 
     #    #how to solve this with recursion/backtracking
     #    #i can use backtracking when determining the correct letter within the group
@@ -85,7 +90,6 @@ class SudokuSolver:
                             ##explore
                             #
                             ##unchoose
-
 
                             #queens method - check to see if the assumed position is valid, then try substituting in and unchoosing
                             #create valid method to handle the new number and index on grid
@@ -129,53 +133,77 @@ class SudokuSolver:
     # to update the set - if remove is true then it should remove the value from all possible sets
     # if remove is fals then it shoul add that value BACK into the original values
 
-    def recursion_solve(self, grid:List[List[str]]) -> List[List[str]]:
+
+
+    def recursion_solver(self, grid:List[List[str]]) -> List[List[str]]:
         if len(self.nones) == 0:
             #if there are no Nones within the grid
             return grid
-        else:
-            coords = self.nones.pop()
-            #coordinates (row,col) of None
-            chunked_grid = self.chunk_grid(grid, ((coords[0]//self.chunk_length)*self.chunk_length), ((coords[1]//self.chunk_length)*self.chunk_length))
-            group = self.grab_possible_group_letters(chunked_grid)
-            row = self.grab_possible_row_letters(grid, coords[0])
-            col = self.grab_possible_col_letters(grid, coords[1])
-            #coords at 0 is the row index, while coords at 1 is the column index
-            final = self.identify_letters(row, col, group)
-            #here is the list of the possible letters that could potentially work
-            for x in final:
-                #if self.valid_letter(grid, x, coords[0], coords[1]):
-                    grid[coords[0]][coords[1]] = x
-                    #just remove it from the lists directly with list.remove()
-                    group = self.remove_val(group, x)
-                    row = self.remove_val(row, x)
-                    col = self.remove_val(col,x)
-                    solved_grid = self.recursion_solve(grid)
-                    if solved_grid != None:
-                        #if it reaches the base case and never has a None then it would have worked
-                        return solved_grid
-                    grid[coords[0]][coords[1]] = None
-                    self.nones.insert(0, (coords))
-                    group.append(x)
-                    col.append(x)
-                    row.append(x)
-                    #update the list AGAIN but this time i need to re-add the x value back because it didnt work (use append)
-                    #the biggest thing is that order doesnt matter its only the direct value that matters
-            return None
-            
+        
+        coords = self.nones.pop()
+        #coordinates (row,col) of None
+        #chunked_grid = self.chunk_grid(grid, coords[0], coords[1])
+        #group = self.grab_possible_group_letters(chunked_grid)
+        #row = self.grab_possible_row_letters(grid, coords[0])
+        #col = self.grab_possible_col_letters(grid, coords[1])
+        #coords at 0 is the row index, while coords at 1 is the column index
+        #final = self.identify_letters(row, col, group)
+        #here is the list of the possible letters that could potentially work
+
+        #the problem must be in the groupings, something isnt working when i combine them all together
+        #attmpting to split it up even more into different functions pt 2 in progress
+
+        final = self.valid_numbers(coords[0], coords[1])
        
-            
-    def remove_val(self, list:List[str], str:str) ->List[str]:
-        if str in list:
-            list.remove(str)
-        return list
-            
-    
+        
+        for letters in final:
+            #if self.valid_letter(grid, x, coords[0], coords[1]):
+            grid[coords[0]][coords[1]] = letters
+            #just remove it from the lists directly with list.remove()
+            #if self.val_here(row, letters):
+            ##    row.remove(letters)
+            #if self.val_here(col, letters):
+            #    col.remove(letters)
+            #if self.val_here(row, letters):
+            #    group.remove(group)
 
-    
-    
+            #too lengthy and weighty, too many things could go wrong/dont wanna check this every time in the recursion...
+            #split into more functions
+            #i suspect that somewhere here was what was causing my origninal tests to return a Nonetype - where no solution was found
+
+            #attempting sets to avoid list.remove(val)
+
+            self.prepare_sets(letters, coords[0], coords[1])
+            solved = self.recursion_solver(grid)
+            if solved != None:
+                #if it reaches the base case and never has a None then it would have worked
+                return solved
+            grid[coords[0]][coords[1]] = None
+            #if it dont work undo it
+            self.unprepare_sets(letters, coords[0], coords[1])
+            #dont forget to undo the coordinate as well
 
 
+            #update the list AGAIN but this time i need to re-add the x value back because it didnt work (use append)
+            #the biggest thing is that order doesnt matter its only the direct value that matters
+            #so that didnt work
+
+
+        self.nones.append(coords)
+        #coordinates thrown back in
+        return None
+        #skip over this to come back to later
+
+
+    #usage is in avoiding the valueError thats thrown when using list.remove(val) and val isnt in list (used in list implementation)
+    def val_here(self, list:List[str], str:str) ->bool:
+        for x in list:
+            if x == str:
+                return True
+        return False
+
+
+    #each tuple is a coordinate holding the position of None
     def nones_list(self, grid:List[List[str]]) -> List[tuple]:
         #the tuple would be the row and col index, and its a list to get the coordinates of each
         none_list = []
@@ -190,8 +218,7 @@ class SudokuSolver:
             row_index+=1
         return none_list
 
-    def nones_length(self, nones:List[tuple]) -> int:
-        return len(nones)
+    
         
     
     #def solve_chunk(self,  grid:List[List[str]], chunked_grid:List[List[str]]) -> List[str]:
@@ -207,9 +234,7 @@ class SudokuSolver:
     #                    row = self.grab_possible_row_letters(grid, row_index)
     #                    col = self.grab_possible_col_letters(grid, col_index)
     #                    final = self.identify_letters(row, col, group)
-                        
-        
-        
+
     #gotta grab all the possible letters that can be used in a specified rows
     #possible letters are defined as letters that are not currently in use within that row
     #params:    grid: the sudoku 2d array it'll analyze
@@ -223,7 +248,7 @@ class SudokuSolver:
         return possible_letters
         
             
-    #possible letters within a column 
+    #possible letters within a column (same thing as row but col version)
     def grab_possible_col_letters(self, grid:List[List[str]], col_number:int) -> List[str]:
         possible_letters = self.options 
         for row in grid:
@@ -248,9 +273,15 @@ class SudokuSolver:
                 if col in possible_letters:
                     possible_letters.remove(col)
         return possible_letters
-        
-    #this function will chunk the grid into the smaller versions (e.g. the 3x3s of the 9x9)
-    def chunk_grid(self, grid:List[List[str]], row_start:int, col_start:int) -> List[List[str]]:
+
+    #this function will chunk the grid into the smaller versions (e.g. the 3x3s of the 9x9) utilizing the sqroot
+    #list implementation, works wonderfuflly
+    #edit - did not work wonderfully in reality
+    def chunk_grid_matrix(self, grid:List[List[str]], row_start:int, col_start:int) -> List[List[str]]:
+        row_start = (row_start//self.chunk_length)*self.chunk_length
+        col_start = (col_start//self.chunk_length)*self.chunk_length
+        #let the method handle adjusting the index to figure out which chunk it is instead of letting that mess in the parameter
+        #(former ugly code in the recursive solve method)
         shortened_grid = []
         row_index = 0
         for row in grid:
@@ -272,6 +303,8 @@ class SudokuSolver:
         #this returns the small grids individually
         #try creating a set of these to create the entire grid
 
+    #list implementation, how to combine all of the letters that are within all the possible letter lists
+    #should return the only available letters left within
     def identify_letters(self, row_letters:List[str], col_letters:List[str], group_letters:List[str]) -> List[str]:
         row_set = set()
         col_set = set()
@@ -312,7 +345,7 @@ class SudokuSolver:
                 return False
             col_index+=1
 
-        chunk = self.chunk_grid(grid, ((row//self.chunk_length)*self.chunk_length), ((col//self.chunk_length)*self.chunk_length))
+        chunk = self.chunk_grid_matrix(grid, ((row//self.chunk_length)*self.chunk_length), ((col//self.chunk_length)*self.chunk_length))
         #WARNING chunk only works with something thats a multiple of chunk length
         #fixed - double divide drops the remainder and gives the back multiple of chunklength, and multiply it again to get the original
         #chunk instead of the very beginning chunk
@@ -329,3 +362,78 @@ class SudokuSolver:
 
         #if it gets through to here, it'll work in the row, the column, and the box
         return True
+
+
+        
+        
+
+    #didnt get how to work with a set for chunk grid(kept trying to iterate and directly change it) so Benoit helped here
+    def chunk_grid_set(self, grid:List[List[str]], x:int, y:int) -> set():
+        possibles = set(self.options_set)
+        #copy possible letters
+        for i in range(self.chunk_length):
+            for j in range(self.chunk_length):
+                #iterate over the entirety of the chunk
+                if grid[x+i][y+j] != None:
+                    possibles.remove(grid[x+i][y+j])
+                    #if at all the chunk has letters, remove them from possible letters
+        return possibles
+        #should only contain the real letters now
+
+    def valid_numbers(self, row:int, col:int) -> set:
+        cols = self.cols[col]
+        rows = self.rows[row]
+        big_chunk = self.big_chunk[row//self.chunk_length][col//self.chunk_length]
+        valids = cols.intersection(rows).intersection(big_chunk)
+        return valids
+    
+    def initialize(self, grid:List[List[str]]):
+        self.nones = self.nones_list(grid)
+
+        
+        temp_rows_list = []
+        temp_cols_list = []
+        for r in grid:
+            row = set(self.options_set)
+            column = set(self.options_set)
+            temp_rows_list.append(row)
+            temp_cols_list.append(column)
+        row_index = 0
+        for row in grid:
+            col_index = 0
+            for col in row:
+                if grid[row_index][col_index] != None:
+                    temp_rows_list[row_index].remove(grid[row_index][col_index])
+                    temp_cols_list[col_index].remove(grid[row_index][col_index])
+                col_index+=1
+            row_index+=1
+        self.rows = temp_rows_list
+        self.cols = temp_cols_list
+        
+
+        outer_chunks = []
+        for i in range(self.chunk_length):
+            inner_chunk = []
+            for j in range(self.chunk_length):
+                inner_chunk.append(self.chunk_grid_set(grid, i*self.chunk_length, j*self.chunk_length))
+            outer_chunks.append(inner_chunk)
+        
+        self.big_chunk = outer_chunks
+
+
+    #apparently one of the reasons that my code wasnt working before was because the lists weren't prepared properly
+    #benoit recommended as a fix to this to create an update sets method, where i would handle the updates seperately in a helper function
+
+    #preparing the set to explore would be for diving into the recursion and getting rid of used coordinates/letters
+    def prepare_sets(self, letter:str, x:int, y:int):
+        self.rows[x].remove(letter)
+        self.cols[y].remove(letter)
+        self.big_chunk[int(x/self.chunk_length)][int(y/self.chunk_length)].remove(letter)
+
+    #unpreparing is the backtracking side of things, where you would add back the coordinates as it backs out (it wouldn't have reached
+    # the point need to use this function if the grid was completed)
+    def unprepare_sets(self, letter:str, x:int, y:int):
+        self.rows[x].add(letter)
+        self.cols[y].add(letter)
+        self.big_chunk[int(x/self.chunk_length)][int(y/self.chunk_length)].add(letter)
+
