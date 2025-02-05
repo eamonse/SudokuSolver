@@ -368,7 +368,7 @@ class SudokuSolver:
         
 
     #didnt get how to work with a set for chunk grid(kept trying to iterate and directly change it) so Benoit helped here
-    def chunk_grid_set(self, grid:List[List[str]], x:int, y:int) -> set():
+    def chunk_grid_set(self, grid:List[List[str]], x:int, y:int) -> set:
         possibles = set(self.options_set)
         #copy possible letters
         for i in range(self.chunk_length):
@@ -437,3 +437,76 @@ class SudokuSolver:
         self.cols[y].add(letter)
         self.big_chunk[int(x/self.chunk_length)][int(y/self.chunk_length)].add(letter)
 
+def print_puzzle(puzzle):
+    for r in puzzle:
+        for c in r:
+            if(c == None):
+                print(" ", end=" ")
+                continue
+            print(c, end=" ")
+        print()
+
+def main():
+    puzzle = [[None, "B", None, None],
+                 ["C", None, None, "B"],
+                 [None, "A", "D", None],
+                 ["D", None, None, "A"]]
+    print("Initial Puzzle (4x4):")
+    print_puzzle(puzzle)     
+    
+    solver = SudokuSolver(["A", "B", "C", "D"])
+    solved_puzzle = solver.solve(puzzle)
+    print()
+    print("Solved Puzzle:")
+    print_puzzle(solved_puzzle)
+
+    puzzle = [["S","G","F",None,None,None,None,"T",None],
+            [None,None,None,"S",None,None,None,None,None],
+            [None,None,None,"T",None,"G","W",None,"F"],
+            ["T","L",None,None,None,"S","R",None,None],
+            [None,None,None,None,"L",None,None,None,None],
+            [None,None,"P","F",None,None,None,"L","T"],
+            ["F",None,"N","P",None,"L",None,None,None],
+            [None,None,None,None,None,"W",None,None,None],
+            [None,"T",None,None,None,None,"P","N","G"]]
+    print("Initial Puzzle (9x9):")
+    print_puzzle(puzzle)  
+
+    solver = SudokuSolver(["W", "L", "F", "S", "T", "R", "N", "G", "P"])
+    solved_puzzle = solver.solve(puzzle)
+    print()
+    print("Solved Puzzle:")
+    print_puzzle(solved_puzzle)
+
+
+
+
+    puzzle = [["6", "2", "A", None, "G", None, None, None, None, "4", None, "B", None, None, None, None],
+            [None, "G", "B", "8", None, None, None, None, None, None, None, "F", None, None, None, None],
+            ["9", "D", "F", None, None, None, "E", "3", "2", None, None, None, None, None, "4", "C"],
+            [None, None, "4", None, "D", "5", "A", "F", "6", None, "G", "8", "7", None, "9", None],
+            ["B", None, None, "5", None, None, "7", None, None, "G", "9", None, "1", None, "A", None],
+            [None, None, "8", None, "B", "3", "9", "5", "7", None, None, "2", "4", None, None, "G"],
+            ["G", None, None, "4", None, "1", "D", None, None, None, None, None, "6", None, None, "8"],
+            ["C", None, "7", "6", "8", None, "G", "2", None, "B", None, None, None, "3", None, None],
+            ["E", None, None, None, None, None, None, "9", None, None, "A", None, None, None, "8", "D"],
+            ["4", "7", "G", None, None, None, None, "E", "B", None, None, "D", None, "9", None, None],
+            ["A", "C", "1", "9", None, None, "2", "B", "G", None, None, None, None, "5", "6", None],
+            [None, None, None, "2", "F", "4", None, None, "9", "6", None, None, None, None, None, "A"],
+            [None, None, None, "3", None, None, None, "C", None, "8", "E", "G", "9", None, None, None],
+            [None, "6", None, None, None, "7", None, None, "1", None, None, "9", "G", None, "C", None],
+            ["1", "B", None, None, None, "A", "3", "8", None, "D", "5", "6", "2", None, None, None],
+            ["8", "4", "9", "E", "1", "6", None, None, None, None, "2", "3", None, "B", None, None]]
+    print("Initial Puzzle (16x16):")
+    print_puzzle(puzzle)  
+
+    solver = SudokuSolver(["A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
+    solved_puzzle = solver.solve(puzzle)
+    print()
+    print("Solved Puzzle:")
+    print_puzzle(solved_puzzle)
+
+
+
+if __name__ == "__main__":
+    main()
